@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Flipbook Viewer</title>
 <style>
-body,html { margin:0; padding:0; height:100%; background:#0b0c10; color:#fff; font-family:sans-serif; }
+body,html { margin:0; padding:0; height:100%; background:#0b0c10; font-family:sans-serif; color:#fff; }
 #flipbookWrapper { width:100%; height:100%; display:flex; justify-content:center; align-items:center; }
 #flipbook { width:90%; height:90%; }
 .page { width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:#fff; overflow:hidden; }
@@ -19,6 +19,7 @@ body,html { margin:0; padding:0; height:100%; background:#0b0c10; color:#fff; fo
 <div id="flipbookWrapper">
     <div id="flipbook"></div>
 </div>
+
 <div class="controls">
     <button id="prevBtn">◀ Prev</button>
     <button id="nextBtn">Next ▶</button>
@@ -41,14 +42,13 @@ body,html { margin:0; padding:0; height:100%; background:#0b0c10; color:#fff; fo
         window.location.href = 'index.html';
     }
 
-    const PDF_URL = 'physics.pdf';
+    const PDF_URL = 'physics.pdf'; // PDF is in same folder
     const flipbookEl = document.getElementById('flipbook');
 
     async function loadPDF() {
         const loadingTask = pdfjsLib.getDocument({url: PDF_URL});
         const pdf = await loadingTask.promise;
         const numPages = pdf.numPages;
-        const pages = [];
 
         for(let i=1; i<=numPages; i++){
             const page = await pdf.getPage(i);
@@ -62,7 +62,6 @@ body,html { margin:0; padding:0; height:100%; background:#0b0c10; color:#fff; fo
             const pageDiv = document.createElement('div');
             pageDiv.className = 'page';
             pageDiv.appendChild(canvas);
-            pages.push(pageDiv);
             flipbookEl.appendChild(pageDiv);
         }
 
