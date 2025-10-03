@@ -3,108 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flipbook Viewer</title>
+<title>Flipbook PDF Viewer</title>
 <style>
-body, html { margin:0; padding:0; height:100%; background:#0b0c10; font-family:sans-serif; color:#fff; }
-#flipbookWrapper { width:100%; height:100%; display:flex; justify-content:center; align-items:center; position:relative; }
-#flipbook { width:90%; height:90%; }
-.page { width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:#fff; overflow:hidden; }
-.page canvas { width:100%; height:100%; object-fit:contain; }
-.controls { position:absolute; top:12px; right:12px; display:flex; gap:8px; z-index:10; }
-.controls button { padding:8px 10px; border-radius:8px; border:none; cursor:pointer; background:#ff7a59; color:#fff; }
-#error { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); color:#ff8b8b; font-size:18px; text-align:center; display:none; }
+body { margin:0; padding:0; display:flex; justify-content:center; align-items:center; height:100vh; background:#0b0c10; font-family:sans-serif; color:#fff; }
+iframe { width:90%; height:90%; border:none; box-shadow:0 0 10px rgba(0,0,0,0.5); border-radius:8px; }
+#error { position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); color:#ff8b8b; font-size:20px; text-align:center; display:none; }
 </style>
 </head>
 <body>
 
-<div id="flipbookWrapper">
-    <div id="flipbook"></div>
-    <div id="error">❌ Failed to load PDF.<br>Please check the file path and open via HTTP server or GitHub Pages.</div>
-</div>
+<div id="error">❌ Access Denied or PDF failed to load.</div>
 
-<div class="controls">
-    <button id="prevBtn">◀ Prev</button>
-    <button id="nextBtn">Next ▶</button>
-    <button id="zoomIn">Zoom +</button>
-    <button id="zoomOut">Zoom −</button>
-</div>
-
-<!-- PDF.js -->
-<script src="https://unpkg.com/pdfjs-dist@3.11.349/build/pdf.min.js"></script>
-<!-- jQuery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-<!-- Turn.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
+<iframe id="pdfFrame" src="" style="display:none;"></iframe>
 
 <script>
-(function(){
-    // Check authorization
-    if(localStorage.getItem('flipbookAuthorized') !== 'true'){
-        alert('Unauthorized. Please enter the passcode.');
-        window.location.href = 'index.html';
-    }
+// CLIENT-SIDE PASSWORD
+const CLIENT_SIDE_PASSCODE = "naikskillacademy@subdega";
 
-    const PDF_URL = 'physics.pdf'; // PDF in same folder
-    const flipbookEl = document.getElementById('flipbook');
-    const errorEl = document.getElementById('error');
+// Prompt user for password
+const password = prompt("Enter passcode to view PDF:");
 
-    async function loadPDF() {
-        try {
-            const loadingTask = pdfjsLib.getDocument({url: PDF_URL});
-            const pdf = await loadingTask.promise;
-            const numPages = pdf.numPages;
-
-            for(let i=1; i<=numPages; i++){
-                const page = await pdf.getPage(i);
-                const viewport = page.getViewport({ scale:1.5 });
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = viewport.width;
-                canvas.height = viewport.height;
-                await page.render({canvasContext:ctx, viewport}).promise;
-
-                const pageDiv = document.createElement('div');
-                pageDiv.className = 'page';
-                pageDiv.appendChild(canvas);
-                flipbookEl.appendChild(pageDiv);
-            }
-
-            // Initialize turn.js
-            $('#flipbook').turn({
-                width: flipbookEl.clientWidth,
-                height: flipbookEl.clientHeight,
-                autoCenter: true,
-                elevation: 50,
-                acceleration: true,
-                gradients: true,
-                duration: 800,
-                page: 1
-            });
-
-            // Controls
-            document.getElementById('prevBtn').onclick = ()=> $('#flipbook').turn('previous');
-            document.getElementById('nextBtn').onclick = ()=> $('#flipbook').turn('next');
-
-            let zoomScale = 1;
-            document.getElementById('zoomIn').onclick = ()=>{
-                zoomScale = Math.min(2.5, zoomScale+0.25);
-                flipbookEl.style.transform = `scale(${zoomScale})`;
-                flipbookEl.style.transformOrigin = 'center top';
-            };
-            document.getElementById('zoomOut').onclick = ()=>{
-                zoomScale = Math.max(0.5, zoomScale-0.25);
-                flipbookEl.style.transform = `scale(${zoomScale})`;
-                flipbookEl.style.transformOrigin = 'center top';
-            };
-
-        } catch (err) {
-            console.error("PDF loading error:", err);
-            errorEl.style.display = 'block';
-        }
-    }
-
-    loadPDF();
-})();
+if(password === CLIENT_SIDE_PASSCODE){
+    const pdfURL = "https://raw.githubusercontent.com/Souravnaik142/flipbook/main/physics.pdf";
+    document.getElementById('pdfFrame').src = "https://docs.google.com/viewer?url=" + encodeURIComponent(pdfURL) + "&embedded=true";
+    document.getElementById('pdfFrame').style.display = "block";
+} else {
+    document.getElementById('error').style.display = "block";
+}
 </script>
 
 </body>
